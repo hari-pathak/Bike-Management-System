@@ -1,0 +1,438 @@
+<?php
+
+session_start();
+
+
+// Check if user is logged in
+if (!isset($_SESSION["user_id"])) {
+    header("Location: ../login.php");
+    exit;
+}
+
+
+// Connect to database
+include "../db.php";
+
+
+// Check if ID exists
+if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
+    header("Location: index.php");
+    exit;
+}
+
+
+$id = (int) $_GET["id"];
+
+
+// Get bike information
+$sql = "SELECT * FROM bikes WHERE id = ?";
+
+$stmt = $conn->prepare($sql);
+
+$stmt->bind_param("i", $id);
+
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+
+// Check if bike exists
+if ($result->num_rows === 0) {
+
+    $stmt->close();
+    $conn->close();
+
+    die("Bike not found.");
+
+}
+
+
+$bike = $result->fetch_assoc();
+
+$stmt->close();
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Bike - Bike Management System</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+
+<body class="bg-gray-100 min-h-screen">
+
+
+    <!-- Navigation -->
+
+    <nav class="bg-[#025CA3] text-white px-8 py-4 flex justify-between items-center">
+
+        <h1 class="text-xl font-bold">
+            Bike Management System
+        </h1>
+
+
+        <a
+            href="../logout.php"
+            class="bg-white text-[#025CA3] px-4 py-2 rounded-lg font-semibold hover:bg-gray-100"
+        >
+            Logout
+        </a>
+
+    </nav>
+
+
+    <!-- Main Content -->
+
+    <div class="max-w-3xl mx-auto px-6 py-10">
+
+
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+
+
+            <!-- Heading -->
+
+            <div class="mb-8">
+
+                <h2 class="text-3xl font-bold text-gray-800">
+                    Edit Bike
+                </h2>
+
+                <p class="text-gray-500 mt-2">
+                    Update the bike information below.
+                </p>
+
+            </div>
+
+
+            <!-- Edit Form -->
+
+            <form
+                action="edit_process.php"
+                method="POST"
+                enctype="multipart/form-data"
+            >
+
+
+                <!-- Hidden ID -->
+
+                <input
+                    type="hidden"
+                    name="id"
+                    value="<?php echo $bike["id"]; ?>"
+                >
+
+
+                <!-- Bike Name -->
+
+                <div class="mb-5">
+
+                    <label
+                        for="bike_name"
+                        class="block text-gray-700 font-medium mb-2"
+                    >
+                        Bike Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="bike_name"
+                        name="bike_name"
+                        value="<?php echo htmlspecialchars($bike["bike_name"]); ?>"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg
+                               focus:outline-none focus:ring-2 focus:ring-[#025CA3]"
+                    >
+
+                </div>
+
+
+                <!-- Brand -->
+
+                <div class="mb-5">
+
+                    <label
+                        for="brand"
+                        class="block text-gray-700 font-medium mb-2"
+                    >
+                        Brand
+                    </label>
+
+                    <input
+                        type="text"
+                        id="brand"
+                        name="brand"
+                        value="<?php echo htmlspecialchars($bike["brand"]); ?>"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg
+                               focus:outline-none focus:ring-2 focus:ring-[#025CA3]"
+                    >
+
+                </div>
+
+
+                <!-- Model -->
+
+                <div class="mb-5">
+
+                    <label
+                        for="model"
+                        class="block text-gray-700 font-medium mb-2"
+                    >
+                        Model
+                    </label>
+
+                    <input
+                        type="text"
+                        id="model"
+                        name="model"
+                        value="<?php echo htmlspecialchars($bike["model"]); ?>"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg
+                               focus:outline-none focus:ring-2 focus:ring-[#025CA3]"
+                    >
+
+                </div>
+
+
+                <!-- Registration Number -->
+
+                <div class="mb-5">
+
+                    <label
+                        for="registration_number"
+                        class="block text-gray-700 font-medium mb-2"
+                    >
+                        Registration Number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="registration_number"
+                        name="registration_number"
+                        value="<?php echo htmlspecialchars($bike["registration_number"]); ?>"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg
+                               focus:outline-none focus:ring-2 focus:ring-[#025CA3]"
+                    >
+
+                </div>
+
+
+                <!-- Price -->
+
+                <div class="mb-5">
+
+                    <label
+                        for="price"
+                        class="block text-gray-700 font-medium mb-2"
+                    >
+                        Price
+                    </label>
+
+                    <input
+                        type="number"
+                        id="price"
+                        name="price"
+                        value="<?php echo $bike["price"]; ?>"
+                        min="0"
+                        step="0.01"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg
+                               focus:outline-none focus:ring-2 focus:ring-[#025CA3]"
+                    >
+
+                </div>
+
+
+                <!-- Year -->
+
+                <div class="mb-5">
+
+                    <label
+                        for="year"
+                        class="block text-gray-700 font-medium mb-2"
+                    >
+                        Year
+                    </label>
+
+                    <input
+                        type="number"
+                        id="year"
+                        name="year"
+                        value="<?php echo $bike["year"]; ?>"
+                        min="1900"
+                        max="2100"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg
+                               focus:outline-none focus:ring-2 focus:ring-[#025CA3]"
+                    >
+
+                </div>
+
+
+                <!-- Color -->
+
+                <div class="mb-5">
+
+                    <label
+                        for="color"
+                        class="block text-gray-700 font-medium mb-2"
+                    >
+                        Color
+                    </label>
+
+                    <input
+                        type="text"
+                        id="color"
+                        name="color"
+                        value="<?php echo htmlspecialchars($bike["color"]); ?>"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg
+                               focus:outline-none focus:ring-2 focus:ring-[#025CA3]"
+                    >
+
+                </div>
+
+                <!-- Current Bike Image -->
+
+<div class="mb-5">
+
+    <label class="block text-gray-700 font-medium mb-2">
+        Current Bike Image
+    </label>
+
+    <?php if (!empty($bike["image"])): ?>
+
+        <img
+            src="../uploads/<?php echo htmlspecialchars($bike["image"]); ?>"
+            alt="<?php echo htmlspecialchars($bike["bike_name"]); ?>"
+            class="w-48 h-32 object-cover rounded-lg border border-gray-300 mb-3"
+        >
+
+    <?php else: ?>
+
+        <p class="text-gray-500 mb-3">
+            No image available
+        </p>
+
+    <?php endif; ?>
+
+</div>
+
+
+<!-- New Bike Image -->
+
+<div class="mb-5">
+
+    <label
+        for="image"
+        class="block text-gray-700 font-medium mb-2"
+    >
+        Change Bike Image
+    </label>
+
+    <input
+        type="file"
+        id="image"
+        name="image"
+        accept="image/jpeg,image/png,image/webp"
+        class="w-full px-4 py-3 border border-gray-300 rounded-lg
+               bg-white
+               focus:outline-none focus:ring-2 focus:ring-[#025CA3]"
+    >
+
+    <p class="text-sm text-gray-500 mt-2">
+        Leave this empty if you want to keep the current image.
+        JPG, PNG, or WEBP only. Maximum size: 5MB.
+    </p>
+
+</div>
+
+
+                <!-- Status -->
+
+                <div class="mb-8">
+
+                    <label
+                        for="status"
+                        class="block text-gray-700 font-medium mb-2"
+                    >
+                        Status
+                    </label>
+
+                    <select
+                        id="status"
+                        name="status"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg
+                               focus:outline-none focus:ring-2 focus:ring-[#025CA3]"
+                    >
+
+                        <option
+                            value="Available"
+                            <?php echo ($bike["status"] === "Available") ? "selected" : ""; ?>
+                        >
+                            Available
+                        </option>
+
+                        <option
+                            value="Sold"
+                            <?php echo ($bike["status"] === "Sold") ? "selected" : ""; ?>
+                        >
+                            Sold
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Buttons -->
+
+                <div class="flex gap-4">
+
+                    <button
+                        type="submit"
+                        class="flex-1 bg-[#025CA3] text-white py-3 rounded-lg
+                               font-semibold hover:bg-blue-700 transition"
+                    >
+                        Update Bike
+                    </button>
+
+
+                    <a
+                        href="index.php"
+                        class="flex-1 text-center bg-gray-200 text-gray-700 py-3 rounded-lg
+                               font-semibold hover:bg-gray-300 transition"
+                    >
+                        Cancel
+                    </a>
+
+                </div>
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
+
+<?php
+
+$conn->close();
+
+?>
