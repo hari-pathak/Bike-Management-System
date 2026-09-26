@@ -1,6 +1,6 @@
 # Bike Management System
 
-A web-based **Bike Management System** developed using **PHP, MySQL, HTML, Tailwind CSS, and JavaScript**.
+A web-based **Bike Management System** developed using **PHP, MySQL, HTML, Tailwind CSS, and JavaScript**..........
 
 The system provides an admin panel for managing bikes and customer enquiries, along with a public-facing website where customers can browse available bikes, view bike details, and submit enquiries.
 
